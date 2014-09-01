@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/psi-impl/!svn/ver/422/branches/transport-caching/PubSub-api/src/pubsub/hashing
+END
+ShiftAddXorHash.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/psi-impl/!svn/ver/422/branches/transport-caching/PubSub-api/src/pubsub/hashing/ShiftAddXorHash.java
+END
+ModifiedDJBHash.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/psi-impl/!svn/ver/422/branches/transport-caching/PubSub-api/src/pubsub/hashing/ModifiedDJBHash.java
+END
+JSWHash.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/psi-impl/!svn/ver/422/branches/transport-caching/PubSub-api/src/pubsub/hashing/JSWHash.java
+END
+HashFunction.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/src/pubsub/hashing/HashFunction.java
+END
+ELFHash.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/psi-impl/!svn/ver/422/branches/transport-caching/PubSub-api/src/pubsub/hashing/ELFHash.java
+END
+OneAtATimeHash.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/psi-impl/!svn/ver/422/branches/transport-caching/PubSub-api/src/pubsub/hashing/OneAtATimeHash.java
+END
+MurmurHash.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/psi-impl/!svn/ver/422/branches/transport-caching/PubSub-api/src/pubsub/hashing/MurmurHash.java
+END
+HashFunctions.java
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/src/pubsub/hashing/HashFunctions.java
+END

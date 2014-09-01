@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/psi-impl/!svn/ver/740/branches/transport-caching/PubSub-api/src/pubsub/util/latecopy
+END
+LateCopy.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/psi-impl/!svn/ver/740/branches/transport-caching/PubSub-api/src/pubsub/util/latecopy/LateCopy.java
+END
+ByteArrayLateCopy.java
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/psi-impl/!svn/ver/740/branches/transport-caching/PubSub-api/src/pubsub/util/latecopy/ByteArrayLateCopy.java
+END

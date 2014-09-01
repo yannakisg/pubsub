@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/psi-impl/!svn/ver/732/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/uds
+END
+UDSLocRCClientImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/psi-impl/!svn/ver/578/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/uds/UDSLocRCClientImpl.java
+END
+UDSSubscriber.java
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/psi-impl/!svn/ver/448/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/uds/UDSSubscriber.java
+END
+ClientMessageProcessor.java
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/svn/psi-impl/!svn/ver/578/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/uds/ClientMessageProcessor.java
+END
+IPCMessageReader.java
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/psi-impl/!svn/ver/648/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/uds/IPCMessageReader.java
+END
+MessageProcessor.java
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/psi-impl/!svn/ver/448/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/uds/MessageProcessor.java
+END
+ServerMessageProcessor.java
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/svn/psi-impl/!svn/ver/578/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/uds/ServerMessageProcessor.java
+END
+IPCMessageWriter.java
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/psi-impl/!svn/ver/732/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/uds/IPCMessageWriter.java
+END
+UDSLocalRendezvousComponent.java
+K 25
+svn:wc:ra_dav:version-url
+V 132
+/svn/psi-impl/!svn/ver/578/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/uds/UDSLocalRendezvousComponent.java
+END

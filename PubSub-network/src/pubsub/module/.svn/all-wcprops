@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/psi-impl/!svn/ver/578/branches/transport-caching/PubSub-network/src/pubsub/module
+END
+SubscriberSet.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/psi-impl/!svn/ver/211/branches/transport-caching/PubSub-network/src/pubsub/module/SubscriberSet.java
+END
+PubSubModuleManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-network/src/pubsub/module/PubSubModuleManager.java
+END
+SimplePubSubModuleImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/psi-impl/!svn/ver/578/branches/transport-caching/PubSub-network/src/pubsub/module/SimplePubSubModuleImpl.java
+END
+ScopeRendezvousIdTable.java
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/psi-impl/!svn/ver/424/branches/transport-caching/PubSub-network/src/pubsub/module/ScopeRendezvousIdTable.java
+END
+Subscriber.java
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-network/src/pubsub/module/Subscriber.java
+END
+PubSubModule.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-network/src/pubsub/module/PubSubModule.java
+END
+ScopeOnlyPubSubTableImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/psi-impl/!svn/ver/424/branches/transport-caching/PubSub-network/src/pubsub/module/ScopeOnlyPubSubTableImpl.java
+END
+SubscriptionTable.java
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-network/src/pubsub/module/SubscriptionTable.java
+END

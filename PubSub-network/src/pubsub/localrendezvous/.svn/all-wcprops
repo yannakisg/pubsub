@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/psi-impl/!svn/ver/732/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous
+END
+LocalRComponent.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/psi-impl/!svn/ver/449/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/LocalRComponent.java
+END
+LocRCClient.java
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/LocRCClient.java
+END
+LocRCIPCMessage.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/psi-impl/!svn/ver/516/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/LocRCIPCMessage.java
+END
+TimeOutLocRCClient.java
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/psi-impl/!svn/ver/578/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/TimeOutLocRCClient.java
+END
+LocRCClientFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/psi-impl/!svn/ver/283/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/LocRCClientFactory.java
+END
+LocRCFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/psi-impl/!svn/ver/449/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/LocRCFactory.java
+END
+LocRCManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/psi-impl/!svn/ver/283/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/LocRCManager.java
+END

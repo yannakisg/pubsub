@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/psi-impl/!svn/ver/767/branches/transport-caching/PubSub-transport/src/pubsub/transport
+END
+Source.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/psi-impl/!svn/ver/773/branches/transport-caching/PubSub-transport/src/pubsub/transport/Source.java
+END
+Sink.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/psi-impl/!svn/ver/507/branches/transport-caching/PubSub-transport/src/pubsub/transport/Sink.java
+END
+StreamInfo.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-transport/src/pubsub/transport/StreamInfo.java
+END
+TransportUtil.java
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/psi-impl/!svn/ver/714/branches/transport-caching/PubSub-transport/src/pubsub/transport/TransportUtil.java
+END
+FileInfo.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/psi-impl/!svn/ver/503/branches/transport-caching/PubSub-transport/src/pubsub/transport/FileInfo.java
+END

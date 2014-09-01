@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/psi-impl/!svn/ver/717/branches/transport-caching/PubSub-node
+END
+.classpath
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/psi-impl/!svn/ver/359/branches/transport-caching/PubSub-node/.classpath
+END
+.project
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-node/.project
+END
+startnode.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/psi-impl/!svn/ver/717/branches/transport-caching/PubSub-node/startnode.sh
+END
+build.xml
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/psi-impl/!svn/ver/446/branches/transport-caching/PubSub-node/build.xml
+END

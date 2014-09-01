@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/psi-impl/!svn/ver/367/branches/transport-caching/PubSub-network/src/pubsub/messages/ipc/rvp
+END
+RVPProxyRouterAnnouncement.java
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/svn/psi-impl/!svn/ver/359/branches/transport-caching/PubSub-network/src/pubsub/messages/ipc/rvp/RVPProxyRouterAnnouncement.java
+END
+RVPIPCMessage.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/psi-impl/!svn/ver/367/branches/transport-caching/PubSub-network/src/pubsub/messages/ipc/rvp/RVPIPCMessage.java
+END

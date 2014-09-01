@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<topology>
+	<element name="Spain_R" type="router" x="67.10615769595904" y="364.05191662553176">
+		<ip>147.83.30.166</ip>
+		<connection node="Spain_H" port="65016"/>
+		<connection node="France_R" port="65001"/>
+		<connection node="Portugal_R" port="65000"/>
+	</element>
+	<element name="Finland_R" type="router" x="616.5662465687126" y="54.20854487372162">
+		<ip>193.166.167.5</ip>
+		<connection node="Sweden_R" port="65013"/>
+		<connection node="Finland_H" port="65022"/>
+	</element>
+	<element name="Spain_H" type="host" x="115.2915470728168" y="429.071079250966">
+		<ip>147.83.30.164</ip>
+		<connection node="Spain_R" port="65016"/>
+	</element>
+	<element name="Greece_H" type="host" x="690.6417151884649" y="371.5314841976191">
+		<ip>195.251.248.180</ip>
+		<connection node="Greece_R" port="65019"/>
+	</element>
+	<element name="Italy" type="router" x="411.4013794827328" y="386.6926765111264">
+		<ip>160.80.221.37</ip>
+		<connection node="Austria" port="65006"/>
+		<connection node="France_R" port="65003"/>
+		<connection node="Greece_R" port="65008"/>
+		<connection node="Switzerland" port="65005"/>
+	</element>
+	<element name="Germany_RVP" type="rvp" x="201.57576881233865" y="169.77431753186016">
+		<ip>130.149.49.136</ip>
+		<connection node="Germany_R" port="65014"/>
+	</element>
+	<element name="Sweden_H" type="host" x="520.9906105913874" y="-7.7052657139477105">
+		<ip>193.10.64.36</ip>
+		<connection node="Sweden_R" port="65021"/>
+	</element>
+	<element name="Portugal_R" type="router" x="-14.090003561654761" y="430.78225386993745">
+		<ip>193.136.124.226</ip>
+		<connection node="Spain_R" port="65000"/>
+		<connection node="Portugal_H" port="65017"/>
+	</element>
+	<element name="France_H" type="host" x="196.5394381592464" y="367.15873047150524">
+		<ip>161.106.240.18</ip>
+		<connection node="France_R" port="65018"/>
+	</element>
+	<element name="Germany_R" type="router" x="344.01187637791145" y="166.1982461497326">
+		<ip>138.246.99.249</ip>
+		<connection node="Germany_RVP" port="65014"/>
+		<connection node="Netherlands" port="65011"/>
+		<connection node="Switzerland" port="65010"/>
+	</element>
+	<element name="Poland_R" type="router" x="603.0514171356663" y="266.97567764116366">
+		<ip>194.29.150.139</ip>
+		<connection node="Austria" port="65009"/>
+		<connection node="Poland_H" port="65020"/>
+	</element>
+	<element name="Switzerland" type="router" x="362.83180256970303" y="247.2354234505674">
+		<ip>192.33.90.196</ip>
+		<connection node="Austria" port="65007"/>
+		<connection node="France_R" port="65004"/>
+		<connection node="Italy" port="65005"/>
+		<connection node="Germany_R" port="65010"/>
+	</element>
+	<element name="Sweden_R" type="router" x="478.9461847166957" y="61.53951161629436">
+		<ip>193.10.64.35</ip>
+		<connection node="Finland_R" port="65013"/>
+		<connection node="Sweden_H" port="65021"/>
+		<connection node="Netherlands" port="65012"/>
+	</element>
+	<element name="England_R" type="router" x="77.68020102947149" y="215.38937848285155">
+		<ip>193.63.75.21</ip>
+		<connection node="France_R" port="65002"/>
+		<connection node="England_H" port="65015"/>
+	</element>
+	<element name="Finland_H" type="host" x="729.0424550279893" y="11.77357691537054">
+		<ip>193.166.167.4</ip>
+		<connection node="Finland_R" port="65022"/>
+	</element>
+	<element name="Austria" type="router" x="474.61000362255777" y="263.7488944977774">
+		<ip>131.130.69.162</ip>
+		<connection node="Italy" port="65006"/>
+		<connection node="Poland_R" port="65009"/>
+		<connection node="Switzerland" port="65007"/>
+	</element>
+	<element name="France_R" type="router" x="183.29512238066775" y="303.7480779233929">
+		<ip>152.81.47.4</ip>
+		<connection node="Spain_R" port="65001"/>
+		<connection node="England_R" port="65002"/>
+		<connection node="Italy" port="65003"/>
+		<connection node="France_H" port="65018"/>
+		<connection node="Switzerland" port="65004"/>
+	</element>
+	<element name="Portugal_H" type="host" x="-42.17564601107259" y="353.0892446392414">
+		<ip>193.136.124.228</ip>
+		<connection node="Portugal_R" port="65017"/>
+	</element>
+	<element name="Greece_R" type="router" x="601.0470524915377" y="405.27104510781123">
+		<ip>195.251.248.181</ip>
+		<connection node="Greece_H" port="65019"/>
+		<connection node="Italy" port="65008"/>
+	</element>
+	<element name="Poland_H" type="host" x="695.5367122894113" y="220.17156631706604">
+		<ip>194.29.150.138</ip>
+		<connection node="Poland_R" port="65020"/>
+	</element>
+	<element name="England_H" type="host" x="-23.589355881581128" y="213.84645860032282">
+		<ip>128.232.103.201</ip>
+		<connection node="England_R" port="65015"/>
+	</element>
+	<element name="Netherlands" type="router" x="356.9113525733615" y="59.75837845133111">
+		<ip>130.37.193.141</ip>
+		<connection node="Sweden_R" port="65012"/>
+		<connection node="Germany_R" port="65011"/>
+	</element>
+</topology>

@@ -1,0 +1,19 @@
+#[host|router|rvp]
+rva.type = router
+
+#[host|router]
+tmc.type = router
+
+localrc.default_port = 45000
+localrc.localhost = localhost
+
+#[nio|uds]
+localrc.type = uds
+localrc.filename = /tmp/pubsub.sock
+
+#[LRU | LFU | MRU | MFU]
+cache.policy = LRU 
+cache.size = 5000
+cache.probability = 0.4d
+
+transport.chunksize = 60000

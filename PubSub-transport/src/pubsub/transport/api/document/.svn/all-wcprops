@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/psi-impl/!svn/ver/503/branches/transport-caching/PubSub-transport/src/pubsub/transport/api/document
+END
+DocumentEntry.java
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/psi-impl/!svn/ver/462/branches/transport-caching/PubSub-transport/src/pubsub/transport/api/document/DocumentEntry.java
+END
+DocumentEntryEvent.java
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-transport/src/pubsub/transport/api/document/DocumentEntryEvent.java
+END
+DocumentSinkListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 130
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-transport/src/pubsub/transport/api/document/DocumentSinkListener.java
+END
+DocumentSourceAPI.java
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/svn/psi-impl/!svn/ver/503/branches/transport-caching/PubSub-transport/src/pubsub/transport/api/document/DocumentSourceAPI.java
+END
+DocumentSinkAPI.java
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svn/psi-impl/!svn/ver/503/branches/transport-caching/PubSub-transport/src/pubsub/transport/api/document/DocumentSinkAPI.java
+END

@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/psi-impl/!svn/ver/766/branches/transport-caching/PubSub-transport/src/pubsub/transport/channel/source
+END
+StreamInfoMap.java
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svn/psi-impl/!svn/ver/371/branches/transport-caching/PubSub-transport/src/pubsub/transport/channel/source/StreamInfoMap.java
+END
+ChannelSource.java
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svn/psi-impl/!svn/ver/780/branches/transport-caching/PubSub-transport/src/pubsub/transport/channel/source/ChannelSource.java
+END
+DataProducer.java
+K 25
+svn:wc:ra_dav:version-url
+V 124
+/svn/psi-impl/!svn/ver/653/branches/transport-caching/PubSub-transport/src/pubsub/transport/channel/source/DataProducer.java
+END
+ChannelSourcePending.java
+K 25
+svn:wc:ra_dav:version-url
+V 132
+/svn/psi-impl/!svn/ver/653/branches/transport-caching/PubSub-transport/src/pubsub/transport/channel/source/ChannelSourcePending.java
+END

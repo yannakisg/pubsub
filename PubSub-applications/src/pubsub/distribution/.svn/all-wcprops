@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/psi-impl/!svn/ver/710/branches/transport-caching/PubSub-applications/src/pubsub/distribution
+END
+ZipfGenerator.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/psi-impl/!svn/ver/516/branches/transport-caching/PubSub-applications/src/pubsub/distribution/ZipfGenerator.java
+END
+ParetoGenerator.java
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/psi-impl/!svn/ver/516/branches/transport-caching/PubSub-applications/src/pubsub/distribution/ParetoGenerator.java
+END
+UniformGenerator.java
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/psi-impl/!svn/ver/710/branches/transport-caching/PubSub-applications/src/pubsub/distribution/UniformGenerator.java
+END
+ExponentialGenerator.java
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/psi-impl/!svn/ver/398/branches/transport-caching/PubSub-applications/src/pubsub/distribution/ExponentialGenerator.java
+END

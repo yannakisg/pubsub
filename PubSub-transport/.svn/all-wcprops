@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/psi-impl/!svn/ver/767/branches/transport-caching/PubSub-transport
+END
+.classpath
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-transport/.classpath
+END
+.project
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-transport/.project
+END
+build.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/psi-impl/!svn/ver/445/branches/transport-caching/PubSub-transport/build.xml
+END

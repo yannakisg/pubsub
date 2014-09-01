@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/psi-impl/!svn/ver/600/branches/transport-caching/PubSub-api/src/pubsub/bloomfilter
+END
+CountingBloomFilter.java
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/src/pubsub/bloomfilter/CountingBloomFilter.java
+END
+BloomFilter.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/psi-impl/!svn/ver/791/branches/transport-caching/PubSub-api/src/pubsub/bloomfilter/BloomFilter.java
+END

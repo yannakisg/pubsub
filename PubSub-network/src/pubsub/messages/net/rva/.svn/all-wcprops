@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/psi-impl/!svn/ver/760/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rva
+END
+BaseRVANetMessage.java
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/psi-impl/!svn/ver/367/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rva/BaseRVANetMessage.java
+END
+InstructDocumentTransfer.java
+K 25
+svn:wc:ra_dav:version-url
+V 126
+/svn/psi-impl/!svn/ver/760/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rva/InstructDocumentTransfer.java
+END
+RVA2RVANetMessage.java
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/psi-impl/!svn/ver/489/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rva/RVA2RVANetMessage.java
+END
+InstructUnsubscribe.java
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/psi-impl/!svn/ver/760/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rva/InstructUnsubscribe.java
+END
+RVARequestProxyInfoMessage.java
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/svn/psi-impl/!svn/ver/367/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rva/RVARequestProxyInfoMessage.java
+END
+RVAErrorMessage.java
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/psi-impl/!svn/ver/283/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rva/RVAErrorMessage.java
+END
+InstructRVAAckMessage.java
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/psi-impl/!svn/ver/383/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rva/InstructRVAAckMessage.java
+END
+InstructChannelTransfer.java
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svn/psi-impl/!svn/ver/760/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rva/InstructChannelTransfer.java
+END
+RVAProxyInfoMessage.java
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/psi-impl/!svn/ver/367/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rva/RVAProxyInfoMessage.java
+END
+RVAAckMessage.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/psi-impl/!svn/ver/367/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rva/RVAAckMessage.java
+END

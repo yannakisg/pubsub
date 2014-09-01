@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/doc/org/psirp/class-use
+END
+BasePubSubPacket.html
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/doc/org/psirp/class-use/BasePubSubPacket.html
+END
+Subscription.html
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/doc/org/psirp/class-use/Subscription.html
+END
+PubSubNetworkManager.html
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/doc/org/psirp/class-use/PubSubNetworkManager.html
+END
+NetworkException.html
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/doc/org/psirp/class-use/NetworkException.html
+END
+PSIRP_ID.html
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/doc/org/psirp/class-use/PSIRP_ID.html
+END
+Publication.html
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/doc/org/psirp/class-use/Publication.html
+END
+PubSubNetwork.html
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/doc/org/psirp/class-use/PubSubNetwork.html
+END

@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/psi-impl/!svn/ver/444/branches/transport-caching/libraries
+END
+commons-codec-1.4.jar
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/libraries/commons-codec-1.4.jar
+END
+commons-collections-3.2.1.jar
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/libraries/commons-collections-3.2.1.jar
+END
+jung-algorithms-2.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/libraries/jung-algorithms-2.0.jar
+END
+jung-api-2.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/libraries/jung-api-2.0.jar
+END
+collections-generic-4.01.jar
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/libraries/collections-generic-4.01.jar
+END
+commons-logging-1.1.1.jar
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/libraries/commons-logging-1.1.1.jar
+END
+commons-lang-2.6.jar
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/libraries/commons-lang-2.6.jar
+END
+juds-0.94.jar
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/psi-impl/!svn/ver/444/branches/transport-caching/libraries/juds-0.94.jar
+END
+jung-graph-impl-2.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/libraries/jung-graph-impl-2.0.jar
+END
+jung-visualization-2.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/libraries/jung-visualization-2.0.jar
+END
+commons-configuration-1.6.jar
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/libraries/commons-configuration-1.6.jar
+END
+log4j-1.2.16.jar
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/libraries/log4j-1.2.16.jar
+END

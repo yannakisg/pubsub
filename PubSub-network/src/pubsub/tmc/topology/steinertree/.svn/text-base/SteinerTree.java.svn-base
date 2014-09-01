@@ -1,0 +1,264 @@
+package pubsub.tmc.topology.steinertree;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import pubsub.ByteIdentifier;
+import pubsub.tmc.topology.WeightedAdjacencyMap;
+import pubsub.tmc.topology.WeightedDijkstra;
+
+/**
+ *
+ * @author John Gasparis
+ */
+public class SteinerTree {
+    private static final Logger logger = Logger.getLogger(SteinerTree.class);
+    
+    static {
+        try {
+            logger.addAppender(new FileAppender(new PatternLayout("%d [%t] %-5p %c - %m%n"), "steinerTree.log", false));
+        } catch (IOException ex) {
+        }
+    }
+    
+    private MinSpanTree steinerTree;
+    private WeightedAdjacencyMap topologyGraph;
+    private WeightedDijkstra wDijkstra;
+    private ByteIdentifier[] steinerPoints;
+
+    public SteinerTree(WeightedAdjacencyMap adjacencyMap, ByteIdentifier[] steinerPoints) {
+        this.topologyGraph = adjacencyMap;
+        this.wDijkstra = adjacencyMap.getWeightedDijkstra();
+        this.steinerPoints = steinerPoints;
+    }
+
+    public MinSpanTree getSteinerTree() {
+        return this.steinerTree;
+    }
+
+    public void createSteinerTree() {
+        /* Step 1 : Construct the complete undirected distance Graph (G1) from Topology and SteinerPoints*/
+        Graph undirectedDisGraph = createUndirectedDisGraph();
+
+        /* Step 2 : Find the minimal spanning tree (T1) of G1 */
+        MinSpanTree minSpanTreeOfDisGraph = createMinSpanTree(undirectedDisGraph);
+
+        /* Step 3 : Construct the subgraph (Gs) of Topology by replacing each edge in T1 
+         *          by its corresponding shortest path in Topology
+         */
+        Graph subgraph = createSubgraph(minSpanTreeOfDisGraph);
+
+        /* Step 4 : Construct the Steiner Tree by finding the minimal spanning tree of Gs */
+        steinerTree = createMinSpanTree(subgraph);
+    }
+
+    private Graph createUndirectedDisGraph() {
+        Graph undirectedDisGraph = new Graph();
+
+        for (int i = 0; i < steinerPoints.length; i++) {
+            wDijkstra.shortestPaths(steinerPoints[i]);
+
+            for (int j = 0; j < steinerPoints.length; j++) {
+                if (!steinerPoints[j].equals(steinerPoints[i])) {
+                  //  logger.debug("Adding Edge: " + steinerPoints[i] + "->" + steinerPoints[j]);
+                    undirectedDisGraph.addEdge(steinerPoints[i], steinerPoints[j], wDijkstra.getCost(steinerPoints[j]));
+                }
+            }
+        }
+
+        return undirectedDisGraph;
+    }
+
+    private MinSpanTree createMinSpanTree(Graph graph) {
+        MinSpanTree tree = new MinSpanTree(graph);
+        correctThePath(tree.getMinSpanEdges());
+        return tree;
+    }
+
+    private Graph createSubgraph(MinSpanTree tree) {
+        int i;
+        double weight;
+        ByteIdentifier v0, v1;
+        Graph subgraph = new Graph();
+        List<Edge> edges = tree.getMinSpanEdges();
+        List<List<ByteIdentifier>> vertices = new ArrayList<List<ByteIdentifier>>();
+
+        for (Edge edge : edges) {
+            wDijkstra.shortestPaths(edge.getSource());
+            vertices.add(wDijkstra.getPathOfNodes(edge.getSource(), edge.getTarget()));
+        }
+
+        for (List<ByteIdentifier> list : vertices) {
+            for (i = 0; i < list.size() - 1; i++) {
+                v1 = list.get(i);
+                v0 = list.get(i + 1);
+                weight = topologyGraph.findEdgeWeight(v0, v1);
+              //  logger.debug("Adding Edge(subgraph): " + v0 + "->" + v1);
+                subgraph.addEdge(v0, v1, weight);
+            }
+        }
+
+        return subgraph;
+    }
+    
+    private void correctThePath(List<Edge> edges) {
+        List<Edge> temp = new ArrayList<Edge>(edges);
+        convertToDirectedGraph(temp, steinerPoints[0]);
+    }
+    
+    private void convertToDirectedGraph(List<Edge> edges, ByteIdentifier source) {
+        List<Edge> retEdges = findEdges(edges, source);
+        if (retEdges.isEmpty()) {
+            logger.debug("Unknown Edge");
+            return;
+        }
+       // System.out.println("SOURCE: " + source);
+        for (Edge e : retEdges) { 
+           // System.out.println("Source: " + e.getSource());
+          //  System.out.println("Target: " + e.getTarget());
+            
+            edges.remove(e);
+            if (e.getTarget().equals(source)) {
+              //  System.out.println("Swap");
+                e.swapEndpoints();
+            }
+            convertToDirectedGraph(edges, e.getTarget());
+        }
+    }
+    
+    private static List<Edge> findEdges(List<Edge> edges, ByteIdentifier id) {
+        List<Edge> retEdges = new ArrayList<Edge>();
+        for (Edge e : edges) {
+            if (e.getSource().equals(id) || e.getTarget().equals(id)) {
+                retEdges.add(e);
+            }
+        }
+        
+        return retEdges;
+    }
+
+    public static void main(String args[]) {
+      /*  ByteIdentifier id0 = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier id1 = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier id2 = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier id3 = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier id4 = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier id5 = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier id6 = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        
+        System.out.println("ID0: " + id0);
+        System.out.println("ID1: " + id1);
+        System.out.println("ID2: " + id2);
+        System.out.println("ID3: " + id3);
+        System.out.println("ID4: " + id4);
+        System.out.println("ID5: " + id5);
+        System.out.println("ID6: " + id6);
+        
+        Edge e0 = new Edge(id0, id1, 1.0);
+        Edge e1 = new Edge(id1, id2, 1.0);
+        Edge e2 = new Edge(id2, id3, 1.0);
+        Edge e3 = new Edge(id4, id3, 1.0);
+        Edge e4 = new Edge(id1, id5, 1.0);
+        Edge e5 = new Edge(id5, id6, 1.0);
+        
+        List<Edge> edges = new ArrayList<Edge>();
+        edges.add(e5);
+        edges.add(e2);
+        edges.add(e3);
+        edges.add(e0);
+        edges.add(e4);
+        edges.add(e1);
+        
+        System.out.println();
+        List<Edge> tempEdges = new ArrayList<Edge>();
+        tempEdges.addAll(edges);
+        for (Edge e : edges) {
+            //tempEdges.add(e);
+            System.out.println("Edge: " + e.toString());
+        }
+        System.out.println();
+        
+        tempEdges.get(0).swapEndpoints();
+        System.out.println(e5);
+        System.out.println(tempEdges.get(0));
+        
+        convertToDirectedGraph(tempEdges, id0);
+        System.out.println();
+        for (Edge e : edges) {
+            System.out.println("Edge: " + e.toString());
+        }
+        /*int totalIDs = 9;
+        int totalLinks = 24;
+        ByteIdentifier[] ids = new ByteIdentifier[totalIDs];
+        BloomFilter[] vlids = new BloomFilter[totalIDs];
+        BloomFilter[] lids = new BloomFilter[totalLinks];
+        int i;
+        int length = 32;
+        int bits = 6;
+        ByteIdentifier myNodeID = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        BloomFilter myVlid = BloomFilter.createRandom(length, bits);
+        WeightedAdjacencyMap map = new WeightedAdjacencyMap(myNodeID, myVlid);
+        byte[] array;
+        byte b = 1;
+
+        for (i = 0; i < totalIDs; i++) {
+            array = new byte[1];
+            Arrays.fill(array, (byte) 0);
+            array[0] = b;
+            b++;
+            ids[i] = new ByteIdentifier(array);
+            vlids[i] = BloomFilter.createRandom(length, bits);
+            System.out.println("Vertex[" + (i + 1) + "] => " + ids[i]);
+        }
+
+        for (i = 0; i < totalLinks; i++) {
+            lids[i] = BloomFilter.createRandom(length, bits);
+        }
+
+        map.addLink(ids[0], ids[8], vlids[8], lids[0], 1.0);
+        map.addLink(ids[0], ids[1], vlids[1], lids[1], 10.0);
+        map.addLink(ids[8], ids[0], vlids[0], lids[2], 1.0);
+        map.addLink(ids[1], ids[0], vlids[0], lids[3], 10.0);
+
+        map.addLink(ids[1], ids[5], vlids[5], lids[4], 1.0);
+        map.addLink(ids[1], ids[2], vlids[2], lids[5], 8.0);
+        map.addLink(ids[5], ids[1], vlids[1], lids[6], 1.0);
+        map.addLink(ids[2], ids[1], vlids[1], lids[7], 8.0);
+
+        map.addLink(ids[2], ids[4], vlids[4], lids[8], 2.0);
+        map.addLink(ids[2], ids[3], vlids[3], lids[9], 9.0);
+        map.addLink(ids[4], ids[2], vlids[2], lids[10], 2.0);
+        map.addLink(ids[3], ids[2], vlids[2], lids[11], 9.0);
+
+        map.addLink(ids[3], ids[4], vlids[4], lids[12], 2.0);
+        map.addLink(ids[4], ids[3], vlids[3], lids[13], 2.0);
+
+        map.addLink(ids[4], ids[5], vlids[5], lids[14], 1.0);
+        map.addLink(ids[4], ids[8], vlids[8], lids[15], 1.0);
+        map.addLink(ids[5], ids[4], vlids[4], lids[16], 1.0);
+        map.addLink(ids[8], ids[4], vlids[4], lids[17], 1.0);
+
+        map.addLink(ids[5], ids[6], vlids[6], lids[18], 1.0);
+        map.addLink(ids[6], ids[5], vlids[5], lids[19], 1.0);
+
+        map.addLink(ids[6], ids[7], vlids[7], lids[20], 0.5);
+        map.addLink(ids[7], ids[6], vlids[6], lids[21], 0.5);
+
+        map.addLink(ids[7], ids[8], vlids[8], lids[22], 0.5);
+        map.addLink(ids[8], ids[7], vlids[7], lids[23], 0.5);
+
+        map.debug();
+
+        System.out.println(map.getPathOfNodes(ids[0], ids[3]).toString());
+
+        ByteIdentifier[] steinerPoints = {ids[0], ids[1], ids[2], ids[3]};
+        SteinerTree tree = new SteinerTree(map, steinerPoints);
+
+        tree.createSteinerTree();
+
+        tree.getSteinerTree().debug();*/
+    }
+}

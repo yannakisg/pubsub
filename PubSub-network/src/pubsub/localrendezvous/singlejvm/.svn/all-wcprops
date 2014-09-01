@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/psi-impl/!svn/ver/480/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/singlejvm
+END
+LocalRCManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svn/psi-impl/!svn/ver/283/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/singlejvm/LocalRCManager.java
+END
+LocalLocRCClient.java
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/svn/psi-impl/!svn/ver/480/branches/transport-caching/PubSub-network/src/pubsub/localrendezvous/singlejvm/LocalLocRCClient.java
+END

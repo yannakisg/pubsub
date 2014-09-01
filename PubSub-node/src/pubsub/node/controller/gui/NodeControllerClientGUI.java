@@ -1,0 +1,776 @@
+package pubsub.node.controller.gui;
+
+import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
+import edu.uci.ics.jung.algorithms.layout.StaticLayout;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.UndirectedSparseGraph;
+import edu.uci.ics.jung.graph.util.Pair;
+import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
+import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.annotations.AnnotationControls;
+import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.Shape;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu.Separator;
+import javax.swing.JProgressBar;
+import javax.swing.SwingWorker;
+import javax.swing.filechooser.FileFilter;
+import org.apache.commons.collections15.Transformer;
+import org.apache.log4j.Logger;
+
+import pubsub.configuration.Configuration;
+import pubsub.configuration.ConfigurationException;
+import pubsub.node.controller.FwdAddLink;
+import pubsub.node.controller.gui.GraphElements.MyEdge;
+import pubsub.node.controller.gui.GraphElements.MyVertex;
+import pubsub.node.controller.xml.XMLCreator;
+import pubsub.node.controller.xml.XMLNode;
+import pubsub.node.controller.xml.XMLParserController;
+import pubsub.util.XMLParser;
+
+/**
+ *
+ * @author John Gasparis
+ */
+public class NodeControllerClientGUI extends JFrame {
+
+    private static final long serialVersionUID = -3819655581615788502L;
+    private final static Logger logger = Logger.getLogger(NodeControllerClientGUI.class);
+    private Graph<GraphElements.MyVertex, GraphElements.MyEdge> graph;
+    private AbstractLayout<GraphElements.MyVertex, GraphElements.MyEdge> layout;
+    private VisualizationViewer<GraphElements.MyVertex, GraphElements.MyEdge> visual;
+    private GraphZoomScrollPane graphZoomPanel;
+    private JPanel controls;
+    private JProgressBar progressBar;
+
+    public NodeControllerClientGUI() {
+        super("Node Controller Client");
+
+        graph = new UndirectedSparseGraph<GraphElements.MyVertex, GraphElements.MyEdge>();
+
+        createLayoutViewer();
+        createZoomPanel();
+        createGUI();
+    }
+
+    private void createLayoutViewer() {
+        layout = new StaticLayout<GraphElements.MyVertex, GraphElements.MyEdge>(graph, new Dimension(600, 600));
+
+        visual = new VisualizationViewer<GraphElements.MyVertex, GraphElements.MyEdge>(layout);
+
+        visual.setBackground(Color.white);
+
+        visual.getRenderContext().setLabelOffset(15);
+
+        visual.getRenderContext().setVertexShapeTransformer(new Transformer<MyVertex, Shape>() {
+
+            @Override
+            public Shape transform(MyVertex i) {
+                switch (i.getType()) {
+                    case DEFAULT:
+                        return new Ellipse2D.Float(-5, -5, 10, 10);
+                    case ROUTER:
+                        return new Ellipse2D.Float(-5, -5, 10, 10);
+                    case RVP:
+                        return new Rectangle2D.Float(-10, -5, 20, 10);
+                    case HOST:
+                        return new Rectangle2D.Float(-5, -5, 10, 10);
+                    default:
+                        return new Ellipse2D.Float(-5, -5, 10, 10);
+                }
+            }
+        });
+
+        visual.getRenderContext().setVertexFillPaintTransformer(new Transformer<MyVertex, Paint>() {
+
+            @Override
+            public Paint transform(MyVertex i) {
+                switch (i.getType()) {
+                    case DEFAULT:
+                        return Color.RED;
+                    case ROUTER:
+                        return Color.BLUE;
+                    case RVP:
+                        return Color.BLACK;
+                    case HOST:
+                        return Color.YELLOW;
+                    default:
+                        return Color.RED;
+                }
+            }
+        });
+
+        visual.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+
+        visual.getRenderContext().setEdgeLabelTransformer(new Transformer<MyEdge, String>() {
+
+            @Override
+            public String transform(MyEdge i) {
+                return "";
+            }
+        });
+
+        visual.setVertexToolTipTransformer(visual.getRenderContext().getVertexLabelTransformer());
+
+
+        final EditingModalGraphMouse graphMouse =
+                new EditingModalGraphMouse(visual.getRenderContext(),
+                GraphElements.MyVertex.VertexFactory.getInstance(),
+                GraphElements.MyEdge.EdgeFactory.getInstance());
+
+        PopupMouseMenuPlugin plugin = new PopupMouseMenuPlugin();
+        EdgeMenu edgeMenu = new EdgeMenu(this);
+        VertexMenu vertexMenu = new VertexMenu(this);
+        plugin.setEdgePopup(edgeMenu);
+        plugin.setVertexPopup(vertexMenu);
+
+        graphMouse.remove(graphMouse.getPopupEditingPlugin());
+        graphMouse.add(plugin);
+
+
+        visual.setGraphMouse(graphMouse);
+        visual.addKeyListener(graphMouse.getModeKeyListener());
+        graphMouse.setMode(ModalGraphMouse.Mode.EDITING);
+
+        AnnotationControls<GraphElements.MyVertex, GraphElements.MyEdge> annotationControls =
+                new AnnotationControls<GraphElements.MyVertex, GraphElements.MyEdge>(graphMouse.getAnnotatingPlugin());
+        controls = new JPanel();
+
+        JComboBox modeBox = graphMouse.getModeComboBox();
+        controls.add(modeBox);
+        controls.add(annotationControls.getAnnotationsToolBar());
+    }
+
+    private void createZoomPanel() {
+        graphZoomPanel = new GraphZoomScrollPane(visual);
+        graphZoomPanel.repaint();
+    }
+
+    private void createGUI() {
+        progressBar = new JProgressBar(0, 100);
+        progressBar.setValue(0);
+        progressBar.setStringPainted(true);
+
+        this.controls.add(progressBar);
+
+        this.add(this.graphZoomPanel);
+        this.add(this.controls, BorderLayout.SOUTH);
+
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.setResizable(false);
+        this.setSize(800, 600);
+
+        JMenuBar bar = new JMenuBar();
+        setJMenuBar(bar);
+
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem newItem = new JMenuItem("New");
+        newItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                NodeControllerClientGUI.this.createNewGraph();
+            }
+        });
+
+        JMenuItem openItem = new JMenuItem("Open...");
+        openItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                NodeControllerClientGUI.this.open();
+            }
+        });
+
+        JMenuItem loadItem = new JMenuItem("Load Background Image...");
+        loadItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                NodeControllerClientGUI.this.load();
+            }
+        });
+
+        JMenuItem saveAsItem = new JMenuItem("Save as...");
+        saveAsItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                NodeControllerClientGUI.this.saveAs();
+            }
+        });
+
+        JMenuItem exitItem = new JMenuItem("Exit");
+        exitItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+
+        fileMenu.add(newItem);
+        fileMenu.addSeparator();
+        fileMenu.add(openItem);
+        fileMenu.add(loadItem);
+        fileMenu.addSeparator();
+        fileMenu.add(saveAsItem);
+        fileMenu.addSeparator();
+        fileMenu.add(exitItem);
+
+        JMenu toolsMenu = new JMenu("Tools");
+        JMenuItem terminalItem = new JMenuItem("Create Terminals");
+        terminalItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (graph.getVertexCount() == 0) {
+                    return;
+                }
+
+                String command = "/usr/bin/gnome-terminal --maximize --working-directory=" + System.getProperty("user.home");
+                String sshCommand = " --tab -e 'bash -c \"/usr/bin/ssh -i .ssh/id_planetlab -l auebple_PSI ";
+                Collection<MyVertex> vertices = graph.getVertices();
+                Runtime rt = Runtime.getRuntime();
+                BashScriptCreator bashCreator;
+                String fileName;
+                int node = 1;
+
+                for (MyVertex iter : vertices) {
+                    logger.debug("Node[" + node + "] => " + iter.getName());
+                    node++;
+                    command += sshCommand + iter.getIP() + "\"'";
+                }
+
+                bashCreator = new BashScriptCreator(command);
+
+                try {
+                    fileName = bashCreator.createAndWriteFile();
+                    rt.exec("/bin/bash " + fileName);
+                } catch (IOException ex) {
+                    showError(ex.getMessage());
+                }
+            }
+        });
+
+        JMenuItem connectItem = new JMenuItem("Connect");
+        connectItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                NodeControllerClientGUI.this.startConnection();
+            }
+        });
+
+        toolsMenu.add(terminalItem);
+        toolsMenu.add(new Separator());
+        toolsMenu.add(connectItem);
+
+        bar.add(fileMenu);
+        bar.add(toolsMenu);
+
+        computeLocation();
+    }
+    
+    private void computeLocation() {
+        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (screen.width / 2) - (this.getWidth() / 2);
+        int y = (screen.height / 2) - (this.getHeight() / 2);
+        this.setLocation(x, y);
+    }
+
+    private void createNewGraph() {
+        MyVertex[] vertices = new MyVertex[graph.getVertexCount()];
+        MyEdge[] edges = new MyEdge[graph.getEdgeCount()];
+        int i = 0;
+
+        for (MyVertex vertex : graph.getVertices()) {
+            vertices[i++] = vertex;
+        }
+
+        i = 0;
+        for (MyEdge edge : graph.getEdges()) {
+            edges[i++] = edge;
+        }
+
+        for (i = 0; i < edges.length; i++) {
+            graph.removeEdge(edges[i]);
+        }
+        for (i = 0; i < vertices.length; i++) {
+            graph.removeVertex(vertices[i]);
+        }
+
+        MyVertex.VertexFactory.reset();
+        MyEdge.EdgeFactory.reset();
+        graphZoomPanel.repaint();
+        visual.repaint();
+    }
+
+    private void load() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileFilter() {
+
+            @Override
+            public boolean accept(File f) {
+                if (f.isDirectory()) {
+                    return true;
+                }
+
+                String fName = f.getName().toLowerCase();
+
+                return fName.endsWith(".jpeg") || fName.endsWith(".jpg") || fName.endsWith(".png") || fName.endsWith(".gif");
+            }
+
+            @Override
+            public String getDescription() {
+                return "Image Files (jpeg|jpg|png|gif)";
+            }
+        });
+
+        int option = fileChooser.showOpenDialog(this);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            loadImage(fileChooser.getSelectedFile());
+        }
+    }
+
+    private void loadImage(File imageFile) {
+        final ImageIcon imgIcon = new ImageIcon(imageFile.getPath());
+
+        if (imgIcon != null) {
+            visual.addPreRenderPaintable(new VisualizationViewer.Paintable() {
+
+                @Override
+                public void paint(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g;
+                    AffineTransform oldXform = g2d.getTransform();
+                    AffineTransform lat =
+                            visual.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT).getTransform();
+                    AffineTransform vat =
+                            visual.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW).getTransform();
+                    AffineTransform at = new AffineTransform();
+                    at.concatenate(g2d.getTransform());
+                    at.concatenate(vat);
+                    at.concatenate(lat);
+                    g2d.setTransform(at);
+                    g.clearRect(0, 0, visual.getWidth(), visual.getHeight());
+                    g.drawImage(imgIcon.getImage(), 0, 0,
+                            imgIcon.getIconWidth(), imgIcon.getIconHeight(), visual);
+                    g2d.setTransform(oldXform);
+                    
+                    Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+                    int width, height;
+                    
+                    if (imgIcon.getIconWidth() > screen.getWidth()) {
+                        width = (int) screen.getWidth();
+                    } else {
+                        width = imgIcon.getIconWidth();
+                    }
+                    
+                    if (imgIcon.getIconHeight() > screen.getHeight()) {
+                        height = (int) screen.getHeight();
+                    } else {
+                        height = imgIcon.getIconHeight();
+                    }
+                    
+                    layout.setSize(new Dimension(width, height));
+                    visual.setSize(width, height);
+                    NodeControllerClientGUI.this.setSize(width + 21, height + 113);
+                    NodeControllerClientGUI.this.computeLocation();
+                }
+
+                @Override
+                public boolean useTransform() {
+                    return false;
+                }
+            });
+            
+            visual.repaint();
+        }
+    }
+
+    private void open() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileFilter() {
+
+            @Override
+            public boolean accept(File f) {
+                return f.isDirectory() || f.getName().toLowerCase().endsWith(".xml");
+            }
+
+            @Override
+            public String getDescription() {
+                return "XML Files";
+            }
+        });
+
+        int option = fileChooser.showOpenDialog(this);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            readXML(fileChooser.getSelectedFile().getPath());
+        }
+    }
+
+    private void saveAs() {
+        JFileChooser fileChooser = new JFileChooser();
+
+        fileChooser.setFileFilter(new FileFilter() {
+
+            @Override
+            public boolean accept(File f) {
+                return f.isDirectory() || f.getName().toLowerCase().endsWith(".xml")
+                        || f.getName().toLowerCase().endsWith(".jpeg");
+            }
+
+            @Override
+            public String getDescription() {
+                return "(XML | JPEG) Files";
+            }
+        });
+
+        int option = fileChooser.showSaveDialog(this);
+
+        if (option == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            String name = file.getName().toLowerCase();
+            if (name.endsWith(".jpeg")) {
+                writeImage(file);
+            } else if (name.endsWith(".xml")) {
+                writeXML(file);
+            } else {
+                JOptionPane.showMessageDialog(this, "Unknown file format", "Node Controller Client", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void readXML(String path) {
+        XMLParserController parser = new XMLParserController(path);
+        parser.parseXMLFile("element");
+
+        createNewGraph();
+
+        List<XMLParser.XMLElement> list = parser.getNodeList();
+        Map<String, MyVertex> map = new HashMap<String, MyVertex>();
+        XMLNode node;
+        MyVertex vertex1;
+        MyVertex vertex2;
+        MyEdge edge;
+        String type;
+        int i = 0;
+
+        for (XMLParser.XMLElement element : list) {
+            node = (XMLNode) element;
+            vertex1 = new MyVertex(node.getName());
+            type = node.getType().toLowerCase();
+
+            if (type.equals("router")) {
+                vertex1.setType(MyVertex.VertexType.ROUTER);
+            } else if (type.equals("rvp")) {
+                vertex1.setType(MyVertex.VertexType.RVP);
+            } else if (type.equals("host")) {
+                vertex1.setType(MyVertex.VertexType.HOST);
+            } else {
+                vertex1.setType(MyVertex.VertexType.DEFAULT);
+            }
+
+            vertex1.setIP(node.getIP());
+
+            map.put(node.getName(), vertex1);
+            graph.addVertex(vertex1);
+            layout.setLocation(vertex1, node.getX(), node.getY());
+        }
+
+        for (XMLParser.XMLElement element : list) {
+            node = (XMLNode) element;
+            vertex1 = map.get(node.getName());
+            for (XMLNode.AttachedNode attNode : node.getAttachedNodes()) {
+                vertex2 = map.get(attNode.getConnectionNodeName());
+                if (vertex2 == null) {
+                    continue;
+                }
+
+                if (graph.findEdge(vertex1, vertex2) == null) {
+                    edge = new MyEdge("Link" + i++);
+                    edge.setPort(attNode.getPort());
+                    edge.setWeight(attNode.getWeight());
+                    graph.addEdge(edge, vertex1, vertex2);
+                }
+            }
+        }
+
+        visual.repaint();
+    }
+
+    private void writeXML(File file) {
+        XMLNode node;
+        edu.uci.ics.jung.graph.util.Pair<MyVertex> pair;
+        XMLCreator creator = new XMLCreator(file);
+        double x, y;
+
+        for (MyVertex vertex : graph.getVertices()) {
+            x = layout.getX(vertex);
+            y = layout.getY(vertex);
+
+            node = new XMLNode(vertex.getStringType(), vertex.getName(), vertex.getIP(), x, y);
+
+            for (MyEdge edge : graph.getOutEdges(vertex)) {
+                pair = graph.getEndpoints(edge);
+                if (pair.getFirst().getIP().equals(vertex.getIP())) {
+                    node.addConnectionNode(pair.getSecond().getName(), edge.getPort(), edge.getWeight());
+                } else {
+                    node.addConnectionNode(pair.getFirst().getName(), edge.getPort(), edge.getWeight());
+                }
+            }
+
+            creator.addXMLNode(node);
+        }
+
+        creator.createXMLFile();
+    }
+
+    private void writeImage(File file) {
+        int width = visual.getWidth();
+        int height = visual.getHeight();
+
+        BufferedImage bufferedImage = new BufferedImage(width, height,
+                BufferedImage.TYPE_INT_RGB);
+
+        Graphics2D graphics2D = bufferedImage.createGraphics();
+        visual.paint(graphics2D);
+        graphics2D.dispose();
+
+        try {
+            ImageIO.write(bufferedImage, "jpeg", file);
+        } catch (Exception e) {
+        }
+    }
+
+    private void startConnection() {
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        Task task = new Task();
+        task.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if ("progress".equals(evt.getPropertyName())) {
+                    int progress = (Integer) evt.getNewValue();
+                    progressBar.setValue(progress);
+                }
+            }
+        });
+        task.execute();
+    }
+
+    private void showError(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "NodeControllerClient : ", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private class BashScriptCreator {
+
+        private String commands;
+        private String fileName;
+
+        public BashScriptCreator(String commands) {
+            this.commands = commands;
+        }
+
+        public String createAndWriteFile() throws IOException {
+            this.fileName = "/tmp/" + UUID.randomUUID().toString() + ".sh";
+            BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+
+            writer.write("#!/bin/bash");
+            writer.newLine();
+            writer.write(commands);
+            writer.newLine();
+
+            writer.close();
+
+            return fileName;
+        }
+    }
+
+    private class Task extends SwingWorker<Void, Void> {
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            setProgress(0);
+
+            Pair<MyVertex> pair;
+            int sleep = 2000;
+            int attachPort = 10001;
+            int progress = 0;
+            int step;
+            String host, remoteHost;
+            int port, remotePort;
+            FwdAddLink fwdLink;
+            Collection<MyVertex> graphVertices = graph.getVertices();
+            List<MyEdge> finalEdges = new ArrayList<MyEdge>();
+            Set<MyEdge> connectedEdges = new HashSet<MyEdge>();
+            Set<MyVertex> connectedVertices = new HashSet<MyVertex>();
+            Deque<MyVertex> vertices = new ArrayDeque<MyVertex>();
+            Collection<MyVertex> neighbors;
+            MyVertex rvpProxy = null;
+            MyVertex vertex;
+            MyEdge edge;
+            boolean found = false;
+
+            if (graph.getVertexCount() == 0 || graph.getEdgeCount() == 0) {
+                showError("The graph does not contain any vertices or edges");
+            }
+
+
+            step = 100 / graph.getEdgeCount();
+
+            for (MyVertex iter : graphVertices) {
+                neighbors = graph.getNeighbors(iter);
+
+                for (MyVertex neighbor : neighbors) {
+                    if (neighbor.getType() == MyVertex.VertexType.RVP) {
+                        rvpProxy = iter;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    break;
+                }
+            }
+
+            if (rvpProxy == null) {
+                showError("RVPProxy not found");
+                return null;
+            }
+
+            vertex = rvpProxy;
+
+            connectedVertices.add(vertex);
+
+            for (MyVertex v : graph.getNeighbors(vertex)) {
+                if (v.getType() == MyVertex.VertexType.RVP) {
+                    continue;
+                }
+
+                MyEdge temp = graph.findEdge(v, vertex);
+
+                if (temp == null) {
+                    logger.debug("WTF");
+                } else {
+                    connectedEdges.add(temp);
+                    finalEdges.add(temp);
+                    vertices.add(v);
+                }
+
+            }
+
+            while (!vertices.isEmpty()) {
+                vertex = vertices.remove();
+
+                for (MyEdge e : graph.getInEdges(vertex)) {
+                    if (!connectedEdges.contains(e)) {
+                        connectedEdges.add(e);
+                        finalEdges.add(e);
+                    }
+                }
+
+                connectedVertices.add(vertex);
+                for (MyVertex v : graph.getNeighbors(vertex)) {
+                    if (!connectedVertices.contains(v)) {
+                        vertices.add(v);
+                    }
+                }
+            }
+
+            for (MyVertex v : graph.getNeighbors(rvpProxy)) {
+                if (v.getType() == MyVertex.VertexType.RVP) {
+                    finalEdges.add(graph.findEdge(v, rvpProxy));
+                    break;
+                }
+            }
+
+            if (finalEdges.size() != graph.getEdgeCount()) {
+                showError("An error occurred. Please try again");
+                return null;
+            }
+
+            for (MyEdge e : finalEdges) {
+                pair = graph.getEndpoints(e);
+                host = pair.getFirst().getIP();
+                remoteHost = pair.getSecond().getIP();
+
+                edge = graph.findEdge(pair.getFirst(), pair.getSecond());
+                port = remotePort = edge.getPort();
+
+                fwdLink = new FwdAddLink(host, attachPort, remoteHost, attachPort, edge.getWeight());
+                fwdLink.connectExplicit(port, remotePort);
+
+                progress += step;
+                setProgress(Math.min(progress, 100));
+                try {
+                    Thread.sleep(sleep);
+                } catch (InterruptedException ex) {
+                }
+            }
+
+            setProgress(100);
+
+            return null;
+        }
+
+        @Override
+        public void done() {
+            Toolkit.getDefaultToolkit().beep();
+            NodeControllerClientGUI.this.setCursor(null);
+        }
+    }
+
+    public static void main(String args[]) throws ConfigurationException {
+        Configuration.readConfiguration();
+        Configuration.install();
+
+        NodeControllerClientGUI frame = new NodeControllerClientGUI();
+        frame.setVisible(true);
+    }
+}

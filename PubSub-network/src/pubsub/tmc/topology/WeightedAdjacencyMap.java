@@ -1,0 +1,792 @@
+package pubsub.tmc.topology;
+
+import java.io.IOException;
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.Stack;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.SimpleLayout;
+import pubsub.BaseSerializableStruct;
+import pubsub.ByteIdentifier;
+import pubsub.ForwardIdentifier;
+import pubsub.bloomfilter.BloomFilter;
+import pubsub.tmc.TMCUtil;
+import pubsub.tmc.TMC_Mode;
+import pubsub.tmc.graph.Link;
+import pubsub.tmc.graph.NeighborNode;
+import pubsub.util.FwdConfiguration;
+import pubsub.util.Util;
+
+/**
+ *
+ * @author John Gasparis
+ */
+public class WeightedAdjacencyMap extends BaseSerializableStruct {
+
+    private static Logger logger = Logger.getLogger(WeightedAdjacencyMap.class);
+    private final Map<ByteIdentifier, Map<ByteIdentifier, Link>> adjacencyMap;
+    private final Map<ByteIdentifier, Link> neighborHosts;
+    private final ByteIdentifier myNodeID;
+    private final BloomFilter myVlid;
+    private final WeightedDijkstra weightedDjikstra;
+
+    public WeightedAdjacencyMap(ByteIdentifier myNodeID, BloomFilter myVlid) {
+        this.adjacencyMap = Collections.synchronizedMap(new HashMap<ByteIdentifier, Map<ByteIdentifier, Link>>());
+        this.myNodeID = myNodeID;
+        this.weightedDjikstra = new WeightedDijkstra(this);
+        this.neighborHosts = Collections.synchronizedMap(new HashMap<ByteIdentifier, Link>());
+        this.myVlid = myVlid;
+        try {
+            logger.addAppender(new FileAppender(new PatternLayout("%d [%t] %-5p %c - %m%n"), "wmap.log", false));
+        } catch (IOException ex) {
+        }
+    }
+
+    private WeightedAdjacencyMap() {
+        this.myNodeID = null;
+        this.myVlid = null;
+        this.weightedDjikstra = null;
+        this.adjacencyMap = Collections.synchronizedMap(new HashMap<ByteIdentifier, Map<ByteIdentifier, Link>>());
+        this.neighborHosts = Collections.synchronizedMap(new HashMap<ByteIdentifier, Link>());
+        try {
+            logger.addAppender(new FileAppender(new SimpleLayout(), "wmap.log", false));
+        } catch (IOException ex) {
+        }
+    }
+
+    public WeightedAdjacencyMap(Map<ByteIdentifier, Map<ByteIdentifier, Link>> map) {
+        this.myNodeID = null;
+        this.myVlid = null;
+        this.adjacencyMap = Collections.synchronizedMap(new HashMap<ByteIdentifier, Map<ByteIdentifier, Link>>(map));
+        this.neighborHosts = null;
+        this.weightedDjikstra = new WeightedDijkstra(this);
+        try {
+            logger.addAppender(new FileAppender(new SimpleLayout(), "wmap.log", false));
+        } catch (IOException ex) {
+        }
+    }
+    
+    public Set<ByteIdentifier> getAllGWs() {
+        Set<ByteIdentifier> set = new HashSet<ByteIdentifier>();
+        Set< Entry<ByteIdentifier, Map<ByteIdentifier, Link>>> entries = adjacencyMap.entrySet();
+        Iterator<Entry<ByteIdentifier,Map<ByteIdentifier, Link>>> iter;
+        Entry<ByteIdentifier, Map<ByteIdentifier, Link>> entry;
+        
+        synchronized (adjacencyMap) {
+            iter = entries.iterator();
+            while (iter.hasNext()) {
+                entry = iter.next();
+                if (entry.getValue().size() == 1) {
+                    set.add(entry.getKey());
+                }
+            }
+        }
+        
+        return set;
+    }
+
+    public StringBuilder debug() {
+        String str = "";
+        String msg = "";
+        StringBuilder strBuilder = new StringBuilder();
+        Set<ByteIdentifier> ids = adjacencyMap.keySet();
+        Iterator<ByteIdentifier> iter;
+        ByteIdentifier id;
+        Link link;
+        Iterator<Link> iterLink;
+
+        synchronized (adjacencyMap) {
+            iter = ids.iterator();
+            Collection<Link> values;
+
+            while (iter.hasNext()) {
+                id = iter.next();
+                str = "Node: " + id.toString() + "\n";
+
+                values = adjacencyMap.get(id).values();
+
+                synchronized (adjacencyMap.get(id)) {
+                    iterLink = values.iterator();
+
+                    while (iterLink.hasNext()) {
+                        link = iterLink.next();
+                        msg += "Cost: " + link.getCost() + "\nVLID: " + TMCUtil.byteArrayToString(link.getEndpoint().getVLID().getBytes()) + "\nEndpoint: "
+                                + link.getEndpoint().getID().toString() + "\n";
+                    }
+                }
+
+                strBuilder.append(str);
+                strBuilder.append(msg);
+
+                logger.debug(str + msg);
+                msg = "";
+            }
+        }
+        return strBuilder;
+    }
+
+    public int getPartialLength() {
+        Map<ByteIdentifier, Link> links = adjacencyMap.get(myNodeID);
+        int totalNeighbors = links.size();
+
+        return totalNeighbors * (Link.getSerializedSize()) + Util.SIZEOF_INT;
+    }
+
+    public void writePartialBuffer(ByteBuffer buff) {
+
+        Map<ByteIdentifier, Link> neighbors = adjacencyMap.get(myNodeID);
+
+        if (neighbors == null || neighbors.isEmpty()) {
+            buff.putInt(0);
+            return;
+        }
+
+        buff.putInt(neighbors.size());
+
+        Collection<Link> values = neighbors.values();
+
+        synchronized (neighbors) {
+            Iterator<Link> iter = values.iterator();
+            while (iter.hasNext()) {
+                iter.next().writeTo(buff);
+            }
+        }
+    }
+
+    public void readPartialBuffer(ByteIdentifier nodeID, ByteBuffer buff) {
+        int totalNeighbors = buff.getInt();
+        Map<ByteIdentifier, Link> map = adjacencyMap.get(nodeID);
+        if (map == null) {
+            map = Collections.synchronizedMap(new HashMap<ByteIdentifier, Link>());
+            adjacencyMap.put(nodeID, map);
+        }
+
+        for (int i = 0; i < totalNeighbors; i++) {
+            Link link = Link.parseByteBuffer(buff);
+
+            if (!nodeID.equals(link.getEndpoint().getID())) {
+                map.put(link.getEndpoint().getID(), link);
+            }
+        }
+    }
+
+    public void addLink(ByteIdentifier nodeID, BloomFilter vlid, BloomFilter lid, double weight) {
+        Map<ByteIdentifier, Link> links = adjacencyMap.get(nodeID);
+        Link link;
+
+        if (links == null) {
+            links = Collections.synchronizedMap(new HashMap<ByteIdentifier, Link>());
+            adjacencyMap.put(nodeID, links);
+        }
+
+        if ((link = getLink(nodeID, vlid)) == null) {
+            NeighborNode otherNode = new NeighborNode(new ByteIdentifier(TMCUtil.getRandomNodeID()), vlid, TMC_Mode.ROUTER);
+            link = new Link(lid, otherNode, weight);
+            links.put(otherNode.getID(), link);
+        } else {
+            link.setLID(lid);
+            link.setCost(weight);
+        }
+    }
+
+    private Link getLink(ByteIdentifier nodeID, BloomFilter vlid) {
+        Map<ByteIdentifier, Link> map = adjacencyMap.get(nodeID);
+        if (map == null || map.isEmpty()) {
+            return null;
+        }
+
+        Collection<Link> values = map.values();
+        synchronized (map) {
+            Iterator<Link> iter = values.iterator();
+            Link link;
+
+            while (iter.hasNext()) {
+                link = iter.next();
+                if (link.getEndpoint().getVLID().equals(vlid)) {
+                    return link;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public void updateNode(ByteIdentifier nodeID, ByteIdentifier newID, BloomFilter vlid, TMC_Mode type) {
+        Map<ByteIdentifier, Link> mLinks = adjacencyMap.get(nodeID);
+
+        if (mLinks == null) {
+            mLinks = Collections.synchronizedMap(new HashMap<ByteIdentifier, Link>());
+            adjacencyMap.put(nodeID, mLinks);
+        }
+
+        Link link = mLinks.get(newID);
+        Link neighborLink = getLink(nodeID, vlid);
+        if (link == null) {
+            if (neighborLink != null) {
+                mLinks.remove(neighborLink.getEndpoint().getID());
+                neighborLink.getEndpoint().setID(newID);
+                neighborLink.getEndpoint().setType(type);
+                if (type == TMC_Mode.ROUTER || type == TMC_Mode.RVP) {
+                    mLinks.put(newID, neighborLink);
+                } else {
+                    neighborHosts.put(neighborLink.getEndpoint().getID(), neighborLink);
+                    debugHosts();
+                }
+            } else {
+                mLinks.put(newID, new Link(new NeighborNode(newID, vlid, type)));
+            }
+        }
+    }
+
+    public Link getLink(ByteIdentifier routerID, ByteIdentifier neighborID) {
+        if (routerID.equals(this.myNodeID)) {
+            Link link = this.neighborHosts.get(neighborID);
+            if (link != null) {
+                return link;
+            }
+        }
+        return adjacencyMap.get(routerID).get(neighborID);
+    }
+
+    public ByteIdentifier getNeighbor(ByteIdentifier src, ByteIdentifier dest) {
+        return adjacencyMap.get(src).get(dest).getEndpoint().getID();
+    }
+
+    public List<Link> getOutgoingRoutersExceptFor(ByteIdentifier id, ByteIdentifier routerID) {
+        Map<ByteIdentifier, Link> mLinks = adjacencyMap.get(id);
+        List<Link> lLinks = new LinkedList<Link>();
+        boolean found = false;
+        Collection<Link> values = mLinks.values();
+
+        synchronized (mLinks) {
+            Iterator<Link> iter = values.iterator();
+            Link link;
+
+            while (iter.hasNext()) {
+                link = iter.next();
+                if (!found && link.getEndpoint().getID().equals(routerID)) {
+                    found = true;
+                } else {
+                    if (link.getEndpoint().getType() == TMC_Mode.ROUTER) {
+                        lLinks.add(link);
+                    }
+                }
+            }
+        }
+        return lLinks;
+    }
+
+    @Override
+    public int getSerializedLength() {
+        int mapSize = Util.SIZEOF_INT;
+        int linkSize = Util.SIZEOF_DOUBLE + FwdConfiguration.ZFILTER_LENGTH + 2
+                + Util.SIZEOF_SHORT + TMCUtil.SHA1_LENGTH + FwdConfiguration.ZFILTER_LENGTH;
+        mapSize = mapSize + adjacencyMap.size() * (myNodeID.getSerializedLength() + Util.SIZEOF_INT);
+
+        Collection<Map<ByteIdentifier, Link>> values = adjacencyMap.values();
+        synchronized (adjacencyMap) {
+            Iterator<Map<ByteIdentifier, Link>> iter = values.iterator();
+
+            while (iter.hasNext()) {
+                mapSize += iter.next().size() * (linkSize);
+            }
+        }
+
+        return mapSize;
+    }
+
+    @Override
+    public void writeTo(ByteBuffer buff) {
+        int prevPos = buff.position();
+        try {
+            int size = adjacencyMap.size();
+            buff.putInt(size);
+            Map<ByteIdentifier, Link> map;
+            Set<ByteIdentifier> keySet = adjacencyMap.keySet();
+            Collection<Link> values;
+
+            synchronized (adjacencyMap) {
+                Iterator<ByteIdentifier> iter = keySet.iterator();
+                ByteIdentifier id;
+
+                while (iter.hasNext() && size > 0) {
+                    id = iter.next();
+                    id.writeTo(buff);
+
+                    map = adjacencyMap.get(id);
+                    buff.putInt(map.size());
+                    values = map.values();
+
+                    synchronized (map) {
+                        Iterator<Link> iterLink = values.iterator();
+
+                        while (iterLink.hasNext()) {
+                            iterLink.next().writeTo(buff);
+                        }
+                    }
+                    size--;
+                }
+            }
+        } catch (BufferOverflowException ex) {
+            buff.position(prevPos);
+            buff.putInt(0);
+            logger.debug("Overflow Exception...Continue");
+        }
+    }
+
+    @Override
+    public void readBuffer(ByteBuffer buff) {
+        int totalRouters = buff.getInt();
+        int totalLinks;
+        Map<ByteIdentifier, Link> map;
+        ByteIdentifier id;
+        Link link;
+
+        for (int i = 0; i < totalRouters; i++) {
+            id = ByteIdentifier.parseByteBuffer(buff);
+
+            totalLinks = buff.getInt();
+            map = Collections.synchronizedMap(new HashMap<ByteIdentifier, Link>());
+
+            for (int j = 0; j < totalLinks; j++) {
+                link = Link.parseByteBuffer(buff);
+
+                map.put(link.getEndpoint().getID(), link);
+            }
+
+            adjacencyMap.put(id, map);
+        }
+    }
+
+    public static WeightedAdjacencyMap createEmptyAdjacencyMap() {
+        WeightedAdjacencyMap wAdjMap = new WeightedAdjacencyMap();
+
+        return wAdjMap;
+    }
+
+    public Map<ByteIdentifier, Map<ByteIdentifier, Link>> getTopology() {
+        return this.adjacencyMap;
+    }
+
+    public Set<ByteIdentifier> getAllNodes() {
+        return adjacencyMap.keySet();
+    }
+
+    public Stack<ByteIdentifier> getPathOfNodes(ByteIdentifier src, ByteIdentifier dest) {
+        weightedDjikstra.shortestPaths(src);
+        Stack<ByteIdentifier> nodes = weightedDjikstra.getPathOfNodes(src, dest);
+        return nodes;
+    }
+
+    public BloomFilter getPath(ByteIdentifier src, ByteIdentifier dest, short[] ttl, boolean includeDest) {
+        Link link;
+
+        if (neighborHosts != null && !neighborHosts.isEmpty() && neighborHosts.containsKey(dest)) {
+            ttl[0] = (short) 1;
+            link = neighborHosts.get(dest);
+            return link.getLidORVlid();
+        }
+
+        if (src.equals(dest)) {
+            ttl[0] = (short) 1;
+            if (src.equals(myNodeID)) {
+                if (includeDest) {
+                    //logger.debug("Final lid: " + myVlid);
+                    return myVlid;
+                } else {
+                    //logger.debug("Final lid is zero");
+                    return BloomFilter.createZero();
+                }
+            }
+
+            if (includeDest) {
+                Collection<Map<ByteIdentifier, Link>> values = adjacencyMap.values();
+                Collection<Link> mapValues;
+                synchronized (adjacencyMap) {
+                    Iterator<Map<ByteIdentifier, Link>> iter = values.iterator();
+                    Map<ByteIdentifier, Link> map;
+                    Iterator<Link> iterLink;
+
+                    while (iter.hasNext()) {
+                        map = iter.next();
+                        mapValues = map.values();
+
+                        synchronized (map) {
+                            iterLink = mapValues.iterator();
+
+                            while (iterLink.hasNext()) {
+                                link = iterLink.next();
+                                if (link.getEndpoint().getID().equals(src)) {
+                                  //  logger.debug("Final lid: " + link.getEndpoint().getVLID());
+                                    return link.getEndpoint().getVLID();
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+              //  logger.debug("Final lid is zero");
+                return BloomFilter.createZero();
+            }
+        }
+
+        weightedDjikstra.shortestPaths(src);
+        Stack<ByteIdentifier> nodes = weightedDjikstra.getPathOfNodes(src, dest);
+        ByteIdentifier id0, id1;
+        short t = 0;
+        BloomFilter lid = BloomFilter.createZero();
+
+        while (!nodes.empty()) {
+            id0 = nodes.pop();
+
+            if (!nodes.empty()) {
+                id1 = nodes.peek();
+                link = adjacencyMap.get(id0).get(id1);
+                if (link != null) {
+                    lid.or(link.getLID());
+                  //  logger.debug("id0[" + id0 + "], id1[" + id1 + "]");
+                    //logger.debug(lid.toBinaryString());
+                    if (link.getEndpoint().getID().equals(dest) && includeDest) {
+                        // logger.debug(dest + "  VLID");
+                        lid.or(link.getEndpoint().getVLID());
+                        // logger.debug(lid.toBinaryString());
+                    }
+                    t++;
+                } else {
+                   // logger.debug("Link for: [" + id0 + "], id1[" + id1 + "] is NULL");
+                    return BloomFilter.createZero();
+                }
+            }
+        }
+
+       // logger.debug("Final lid: " + lid);
+        ttl[0] = t;
+        return lid;
+
+    }
+
+    public Map<ByteIdentifier, ForwardIdentifier> getNeighbors(ByteIdentifier id) {
+        Map<ByteIdentifier, Link> map = adjacencyMap.get(id);
+        Map<ByteIdentifier, ForwardIdentifier> neighborsMap;
+
+        if (map == null || map.isEmpty()) {
+            return null;
+        }
+
+        neighborsMap = Collections.synchronizedMap(new HashMap<ByteIdentifier, ForwardIdentifier>());
+
+        Collection<Link> values = map.values();
+        Link link;
+
+        synchronized (map) {
+            Iterator<Link> iter = values.iterator();
+            while (iter.hasNext()) {
+                link = iter.next();
+                neighborsMap.put(link.getEndpoint().getID(), new ForwardIdentifier(link.getLidORVlid(), (short) 1));
+            }
+        }
+
+        return neighborsMap;
+    }
+
+    public ByteIdentifier removeLink(ByteIdentifier srcID, BloomFilter lid) {
+        Map<ByteIdentifier, Link> map = adjacencyMap.get(srcID);
+        ByteIdentifier removedNodeID = null;
+
+        if (map != null && !map.isEmpty()) {
+            Collection<Link> values = map.values();
+
+            synchronized (map) {
+                Iterator<Link> iter = values.iterator();
+                Link link;
+                while (iter.hasNext()) {
+                    link = iter.next();
+                    if (link.getLID().equals(lid)) {
+                        removedNodeID = link.getEndpoint().getID();
+                        iter.remove();
+                        adjacencyMap.remove(removedNodeID);
+                        break;
+                    }
+                }
+            }
+        } else {
+            Link link = null;
+            Collection<Link> values = neighborHosts.values();
+            Link temp;
+
+            synchronized (neighborHosts) {
+                Iterator<Link> iter = values.iterator();
+                while (iter.hasNext()) {
+                    temp = iter.next();
+                    if (link.getLID().equals(lid)) {
+                        link = temp;
+                        break;
+                    }
+                }
+            }
+
+            if (link != null) {
+                neighborHosts.remove(link.getEndpoint().getID());
+            }
+        }
+
+        return removedNodeID;
+    }
+
+    private void debugHosts() {
+        Collection<Link> values = neighborHosts.values();
+
+        synchronized (neighborHosts) {
+            Iterator<Link> iter = values.iterator();
+            Link link;
+            while (iter.hasNext()) {
+                link = iter.next();
+               logger.debug(link.toString());
+                logger.debug("\t" + link.getEndpoint().toString());
+            }
+        }
+    }
+
+    public void writeHostsBuffer(ByteBuffer buff) {
+        Collection<Link> values = neighborHosts.values();
+
+        synchronized (neighborHosts) {
+            Iterator<Link> iter = values.iterator();
+            Link link;
+            while (iter.hasNext()) {
+                link = iter.next();
+                link.writeTo(buff);
+            }
+        }
+    }
+
+    public void readHostsBuffer(ByteBuffer buff) {
+        Link link;
+        while (buff.hasRemaining()) {
+            link = Link.parseByteBuffer(buff);
+            neighborHosts.put(link.getEndpoint().getID(), link);
+        }
+    }
+
+    public Map<ByteIdentifier, Link> getNeighborHosts() {
+        return this.neighborHosts;
+    }
+
+    public int getHostsLength() {
+        int totalHosts = neighborHosts.size();
+
+        return totalHosts * (Util.SIZEOF_DOUBLE + FwdConfiguration.ZFILTER_LENGTH
+                + 2 + Util.SIZEOF_SHORT + TMCUtil.SHA1_LENGTH
+                + FwdConfiguration.ZFILTER_LENGTH);
+    }
+
+    public BloomFilter getHostLink(ByteIdentifier id) {
+
+        Link link = neighborHosts.get(id);
+
+        if (link != null) {
+            return link.getLidORVlid();
+        } else {
+            return null;
+        }
+    }
+
+    public BloomFilter findLID(ByteIdentifier id) {
+        Collection<Map<ByteIdentifier, Link>> mapValues = adjacencyMap.values();
+        synchronized (adjacencyMap) {
+            Iterator<Map<ByteIdentifier, Link>> iterMap = mapValues.iterator();
+            Map<ByteIdentifier, Link> map;
+            Collection<Link> values;
+            Iterator<Link> iterLink;
+            Link link;
+
+            while (iterMap.hasNext()) {
+                map = iterMap.next();
+                values = map.values();
+
+                synchronized (map) {
+                    iterLink = values.iterator();
+
+                    while (iterLink.hasNext()) {
+                        link = iterLink.next();
+                        if (link.getEndpoint().getID().equals(id)) {
+                            return link.getLID();
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public void addLink(ByteIdentifier source, ByteIdentifier dest, BloomFilter vlid, BloomFilter lid, double cost) {
+        Map<ByteIdentifier, Link> map = adjacencyMap.get(source);
+        if (map == null) {
+            map = Collections.synchronizedMap(new HashMap<ByteIdentifier, Link>());
+            adjacencyMap.put(source, map);
+        }
+
+        map.put(dest, new Link(lid, new NeighborNode(dest, vlid, TMC_Mode.ROUTER), cost));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final WeightedAdjacencyMap other = (WeightedAdjacencyMap) obj;
+        if (this.myNodeID != other.myNodeID && (this.myNodeID == null || !this.myNodeID.equals(other.myNodeID))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + (this.myNodeID != null ? this.myNodeID.hashCode() : 0);
+        return hash;
+    }
+
+    public WeightedDijkstra getWeightedDijkstra() {
+        return this.weightedDjikstra;
+    }
+
+    public double findEdgeWeight(ByteIdentifier v0, ByteIdentifier v1) throws NullPointerException {
+        return adjacencyMap.get(v0).get(v1).getCost();
+    }
+
+    public static void main(String args[]) {
+        int length = 32;
+        int bits = 5;
+        ByteIdentifier myID = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        BloomFilter myVLID = BloomFilter.createRandom(length, bits);
+        WeightedAdjacencyMap map = new WeightedAdjacencyMap(myID, myVLID);
+
+        ByteIdentifier sweden = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier holland = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier england = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier portugal = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier spain = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier germany = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier france = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier italy = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier austria = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier switzerland = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier greece = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier slovenia = new ByteIdentifier(TMCUtil.getRandomNodeID());
+        ByteIdentifier hungray = new ByteIdentifier(TMCUtil.getRandomNodeID());
+
+        System.out.println("Sweden: " + sweden);
+        System.out.println("Holland: " + holland);
+        System.out.println("England: " + england);
+        System.out.println("Portugal: " + portugal);
+        System.out.println("Spain: " + spain);
+        System.out.println("Germany: " + germany);
+        System.out.println("France: " + france);
+        System.out.println("Italy: " + italy);
+        System.out.println("Austria: " + austria);
+        System.out.println("Switzerland: " + switzerland);
+        System.out.println("Greece: " + greece);
+        System.out.println("Slovenia: " + slovenia);
+        System.out.println("Hungray: " + hungray);
+
+
+        BloomFilter vlidSweden = BloomFilter.createRandom(length, bits);
+        BloomFilter vlidHolland = BloomFilter.createRandom(length, bits);
+        BloomFilter vlidEnglang = BloomFilter.createRandom(length, bits);
+        BloomFilter vlidPortugal = BloomFilter.createRandom(length, bits);
+        BloomFilter vlidSpain = BloomFilter.createRandom(length, bits);
+        BloomFilter vlidGermany = BloomFilter.createRandom(length, bits);
+        BloomFilter vlidFrance = BloomFilter.createRandom(length, bits);
+        BloomFilter vlidItaly = BloomFilter.createRandom(length, bits);
+        BloomFilter vlidAustria = BloomFilter.createRandom(length, bits);
+        BloomFilter vlidSwitzerland = BloomFilter.createRandom(length, bits);
+        BloomFilter vlidGreece = BloomFilter.createRandom(length, bits);
+        BloomFilter vlidSlovenia = BloomFilter.createRandom(length, bits);
+        BloomFilter vlidHungary = BloomFilter.createRandom(length, bits);
+
+        map.addLink(sweden, holland, vlidHolland, BloomFilter.createRandom(length, bits), 2);
+        map.addLink(holland, sweden, vlidSweden, BloomFilter.createRandom(length, bits), 2);
+
+        map.addLink(england, holland, vlidHolland, BloomFilter.createRandom(length, bits), 3);
+        map.addLink(holland, england, vlidEnglang, BloomFilter.createRandom(length, bits), 3);
+
+        map.addLink(germany, holland, vlidHolland, BloomFilter.createRandom(length, bits), 3);
+        map.addLink(holland, germany, vlidGermany, BloomFilter.createRandom(length, bits), 3);
+
+        map.addLink(england, france, vlidFrance, BloomFilter.createRandom(length, bits), 2);
+        map.addLink(france, england, vlidEnglang, BloomFilter.createRandom(length, bits), 2);
+
+        map.addLink(england, portugal, vlidPortugal, BloomFilter.createRandom(length, bits), 5);
+        map.addLink(portugal, england, vlidEnglang, BloomFilter.createRandom(length, bits), 5);
+
+        map.addLink(spain, portugal, vlidPortugal, BloomFilter.createRandom(length, bits), 1);
+        map.addLink(portugal, spain, vlidSpain, BloomFilter.createRandom(length, bits), 1);
+
+        map.addLink(germany, france, vlidFrance, BloomFilter.createRandom(length, bits), 1);
+        map.addLink(france, germany, vlidGermany, BloomFilter.createRandom(length, bits), 1);
+
+        map.addLink(spain, france, vlidFrance, BloomFilter.createRandom(length, bits), 2);
+        map.addLink(france, spain, vlidSpain, BloomFilter.createRandom(length, bits), 2);
+
+        map.addLink(spain, switzerland, vlidSwitzerland, BloomFilter.createRandom(length, bits), 15);
+        map.addLink(switzerland, spain, vlidSpain, BloomFilter.createRandom(length, bits), 15);
+
+        map.addLink(spain, italy, vlidItaly, BloomFilter.createRandom(length, bits), 5);
+        map.addLink(italy, spain, vlidSpain, BloomFilter.createRandom(length, bits), 5);
+
+        map.addLink(germany, slovenia, vlidSlovenia, BloomFilter.createRandom(length, bits), 3);
+        map.addLink(slovenia, germany, vlidGermany, BloomFilter.createRandom(length, bits), 3);
+
+        map.addLink(germany, austria, vlidAustria, BloomFilter.createRandom(length, bits), 1);
+        map.addLink(austria, germany, vlidGermany, BloomFilter.createRandom(length, bits), 1);
+
+        map.addLink(germany, switzerland, vlidSwitzerland, BloomFilter.createRandom(length, bits), 2);
+        map.addLink(switzerland, germany, vlidGermany, BloomFilter.createRandom(length, bits), 2);
+
+        map.addLink(italy, switzerland, vlidSwitzerland, BloomFilter.createRandom(length, bits), 1.5);
+        map.addLink(switzerland, italy, vlidItaly, BloomFilter.createRandom(length, bits), 1.5);
+
+        map.addLink(italy, greece, vlidGreece, BloomFilter.createRandom(length, bits), 2);
+        map.addLink(greece, italy, vlidItaly, BloomFilter.createRandom(length, bits), 2);
+
+        map.addLink(italy, austria, vlidAustria, BloomFilter.createRandom(length, bits), 2);
+        map.addLink(austria, italy, vlidItaly, BloomFilter.createRandom(length, bits), 2);
+
+        map.addLink(austria, greece, vlidGreece, BloomFilter.createRandom(length, bits), 12);
+        map.addLink(greece, austria, vlidAustria, BloomFilter.createRandom(length, bits), 12);
+
+        map.addLink(austria, hungray, vlidHungary, BloomFilter.createRandom(length, bits), 4);
+        map.addLink(hungray, austria, vlidAustria, BloomFilter.createRandom(length, bits), 4);
+
+        map.addLink(slovenia, hungray, vlidHungary, BloomFilter.createRandom(length, bits), 1);
+        map.addLink(hungray, slovenia, vlidSlovenia, BloomFilter.createRandom(length, bits), 1);
+
+        map.debug();
+
+
+        WeightedDijkstra dijkstra = map.weightedDjikstra;
+        dijkstra.shortestPaths(england);
+        Stack<ByteIdentifier> stack = dijkstra.getPathOfNodes(england, sweden);
+        while (!stack.empty()) {
+            System.out.println("[" + stack.pop() + "]");
+        }
+    }
+}

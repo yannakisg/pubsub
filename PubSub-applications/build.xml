@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="PubSub-network">
+    <property environment="env"/>
+    <property name="LIBRARIES" value="../libraries"/>
+    <property name="PubSub-api.location" value="../PubSub-api"/>
+    <property name="PubSub-transport.location" value="../PubSub-transport"/>
+    <property name="PubSub-network.location" value="../PubSub-network"/>
+    <property name="ECLIPSE_HOME" value="../../../../../tools/eclipse"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+     <path id="PubSub-api.classpath">
+        <pathelement location="${PubSub-api.location}/bin"/>
+        <pathelement location="${LIBRARIES}/commons-codec-1.4.jar"/>        
+        <pathelement location="${LIBRARIES}/commons-configuration-1.6.jar"/>
+        <pathelement location="${LIBRARIES}/commons-lang-2.6.jar"/>
+        <pathelement location="${LIBRARIES}/commons-collections-3.2.1.jar"/>
+        <pathelement location="${LIBRARIES}/log4j-1.2.16.jar"/>        
+    </path>
+    <path id="PubSub-transport.classpath">
+        <pathelement location="${PubSub-transport.location}/bin"/>
+        <path refid="PubSub-api.classpath"/>
+        <path refid="PubSub-network.classpath"/>
+        <pathelement location="${LIBRARIES}/log4j-1.2.16.jar"/>
+        <pathelement location="${LIBRARIES}/commons-codec-1.4.jar"/>        
+    </path>
+    <path id="PubSub-network.classpath">
+        <pathelement location="${PubSub-network.location}/bin"/>
+        <pathelement location="${LIBRARIES}/juds-0.94.jar"/>
+        <path refid="PubSub-api.classpath"/>
+        <pathelement location="${LIBRARIES}/log4j-1.2.16.jar"/>
+        <pathelement location="${LIBRARIES}/commons-codec-1.4.jar"/>
+    </path>
+    <path id="PubSub-applications.classpath">
+        <pathelement location="${PubSub-applications.location}/bin"/>
+        <path refid="PubSub-api.classpath"/>
+        <path refid="PubSub-transport.classpath"/>
+        <pathelement location="${LIBRARIES}/log4j-1.2.16.jar"/>
+        <pathelement location="${LIBRARIES}/commons-codec-1.4.jar"/>
+        <pathelement location="${LIBRARIES}/vlcj-1.2.0.jar"/>
+        <pathelement location="${LIBRARIES}/platform.jar"/>
+        <pathelement location="${LIBRARIES}/jna.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall">
+        <ant antfile="${PubSub-api.location}/build.xml" dir="${PubSub-api.location}" inheritAll="false" target="clean"/>
+    </target>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects">
+        <ant antfile="${PubSub-api.location}/build.xml" dir="${PubSub-api.location}" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${PubSub-transport.location}/build.xml" dir="${PubSub-transport.location}" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${PubSub-network.location}/build.xml" dir="${PubSub-network.location}" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+    </target>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac  debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="PubSub-applications.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
+        <ant antfile="${PubSub-node.location}/build.xml" dir="${PubSub-node.location}" inheritAll="false" target="clean"/>
+        <ant antfile="${PubSub-node.location}/build.xml" dir="${PubSub-node.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${PubSub-transport.location}/build.xml" dir="${PubSub-transport.location}" inheritAll="false" target="clean"/>
+        <ant antfile="${PubSub-transport.location}/build.xml" dir="${PubSub-transport.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+    </target>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    <target name="StartServer">
+        <java classname="pubsub.test.StartServer" failonerror="true" fork="yes">
+            <classpath refid="PubSub-network.classpath"/>
+        </java>
+    </target>
+    <target name="TestPublisher">
+        <java classname="pubsub.test.TestPublisher" failonerror="true" fork="yes">
+            <classpath refid="PubSub-network.classpath"/>
+        </java>
+    </target>
+    <target name="TestSubscriber">
+        <java classname="pubsub.test.TestSubscriber" failonerror="true" fork="yes">
+            <classpath refid="PubSub-network.classpath"/>
+        </java>
+    </target>
+</project>

@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/psi-impl/!svn/ver/490/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rvp
+END
+RVPNetMessage.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/psi-impl/!svn/ver/367/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rvp/RVPNetMessage.java
+END
+RVPAckMessage.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/psi-impl/!svn/ver/367/branches/transport-caching/PubSub-network/src/pubsub/messages/net/rvp/RVPAckMessage.java
+END

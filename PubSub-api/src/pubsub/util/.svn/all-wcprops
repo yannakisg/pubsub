@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/psi-impl/!svn/ver/760/branches/transport-caching/PubSub-api/src/pubsub/util
+END
+StoppableThread.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/src/pubsub/util/StoppableThread.java
+END
+Producer.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/src/pubsub/util/Producer.java
+END
+ThreadSafeSortedList.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/psi-impl/!svn/ver/471/branches/transport-caching/PubSub-api/src/pubsub/util/ThreadSafeSortedList.java
+END
+ProducerConsumerQueue.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/psi-impl/!svn/ver/516/branches/transport-caching/PubSub-api/src/pubsub/util/ProducerConsumerQueue.java
+END
+FwdConfiguration.java
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/psi-impl/!svn/ver/674/branches/transport-caching/PubSub-api/src/pubsub/util/FwdConfiguration.java
+END
+Consumer.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/src/pubsub/util/Consumer.java
+END
+Pair.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/psi-impl/!svn/ver/413/branches/transport-caching/PubSub-api/src/pubsub/util/Pair.java
+END
+SortedList.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/psi-impl/!svn/ver/393/branches/transport-caching/PubSub-api/src/pubsub/util/SortedList.java
+END
+Util.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/psi-impl/!svn/ver/760/branches/transport-caching/PubSub-api/src/pubsub/util/Util.java
+END
+XMLParser.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/psi-impl/!svn/ver/578/branches/transport-caching/PubSub-api/src/pubsub/util/XMLParser.java
+END

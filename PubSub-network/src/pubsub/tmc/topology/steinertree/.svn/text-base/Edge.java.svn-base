@@ -1,0 +1,79 @@
+package pubsub.tmc.topology.steinertree;
+
+import pubsub.ByteIdentifier;
+
+/**
+ *
+ * @author John Gasparis
+ */
+public class Edge {
+
+    private double weight;
+    private ByteIdentifier source;
+    private ByteIdentifier target;
+    private String toString = "";
+
+    public Edge(ByteIdentifier source, ByteIdentifier target, double weight) {
+        this.source = source;
+        this.target = target;
+        this.weight = weight;
+    }
+
+    @Override
+    public String toString() {
+        toString = source.toString() + " -- " + target.toString() + " [" + weight + "]";
+        return toString;
+    }
+
+    public void swapEndpoints() {
+        ByteIdentifier temp = source;
+        source = target;
+        target = temp;
+    }
+
+    public ByteIdentifier getSource() {
+        return this.source;
+    }
+
+    public ByteIdentifier getTarget() {
+        return this.target;
+    }
+
+    public double getWeight() {
+        return this.weight;
+    }
+
+    public void debug() {
+        System.out.println("\t" + toString());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Edge other = (Edge) obj;
+        if (Double.doubleToLongBits(this.weight) != Double.doubleToLongBits(other.weight)) {
+            return false;
+        }
+        if (this.source != other.source && (this.source == null || !this.source.equals(other.source))) {
+            return false;
+        }
+        if (this.target != other.target && (this.target == null || !this.target.equals(other.target))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.weight) ^ (Double.doubleToLongBits(this.weight) >>> 32));
+        hash = 79 * hash + (this.source != null ? this.source.hashCode() : 0);
+        hash = 79 * hash + (this.target != null ? this.target.hashCode() : 0);
+        return hash;
+    }
+}

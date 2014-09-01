@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/psi-impl/!svn/ver/712/branches/transport-caching/PubSub-applications/src/pubsub/experiments/channel/publisher
+END
+XMLChannelPublisherParser.java
+K 25
+svn:wc:ra_dav:version-url
+V 145
+/svn/psi-impl/!svn/ver/556/branches/transport-caching/PubSub-applications/src/pubsub/experiments/channel/publisher/XMLChannelPublisherParser.java
+END
+XMLChannelPublisherCreator.java
+K 25
+svn:wc:ra_dav:version-url
+V 146
+/svn/psi-impl/!svn/ver/703/branches/transport-caching/PubSub-applications/src/pubsub/experiments/channel/publisher/XMLChannelPublisherCreator.java
+END
+Announcer.java
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/svn/psi-impl/!svn/ver/556/branches/transport-caching/PubSub-applications/src/pubsub/experiments/channel/publisher/Announcer.java
+END
+Publisher.java
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/svn/psi-impl/!svn/ver/712/branches/transport-caching/PubSub-applications/src/pubsub/experiments/channel/publisher/Publisher.java
+END

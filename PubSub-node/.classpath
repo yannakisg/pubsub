@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="conf"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/PubSub-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/PubSub-network"/>
+	<classpathentry kind="var" path="LIBRARIES"/>
+	<classpathentry kind="var" path="LIBRARIES/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="var" path="LIBRARIES/log4j-1.2.16.jar"/>
+	<classpathentry kind="var" path="LIBRARIES/jung-algorithms-2.0.jar"/>
+	<classpathentry kind="var" path="LIBRARIES/jung-api-2.0.jar"/>
+	<classpathentry kind="var" path="LIBRARIES/jung-graph-impl-2.0.jar"/>
+	<classpathentry kind="var" path="LIBRARIES/jung-visualization-2.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

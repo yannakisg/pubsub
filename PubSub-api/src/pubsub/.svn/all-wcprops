@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/psi-impl/!svn/ver/760/branches/transport-caching/PubSub-api/src/pubsub
+END
+BasePubSubPacket.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/psi-impl/!svn/ver/397/branches/transport-caching/PubSub-api/src/pubsub/BasePubSubPacket.java
+END
+Subscription.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/psi-impl/!svn/ver/740/branches/transport-caching/PubSub-api/src/pubsub/Subscription.java
+END
+BaseSerializableStruct.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/psi-impl/!svn/ver/740/branches/transport-caching/PubSub-api/src/pubsub/BaseSerializableStruct.java
+END
+ForwardIdentifier.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/psi-impl/!svn/ver/744/branches/transport-caching/PubSub-api/src/pubsub/ForwardIdentifier.java
+END
+NetworkException.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/psi-impl/!svn/ver/193/branches/transport-caching/PubSub-api/src/pubsub/NetworkException.java
+END
+Publication.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/psi-impl/!svn/ver/740/branches/transport-caching/PubSub-api/src/pubsub/Publication.java
+END
+SerializableStruct.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/psi-impl/!svn/ver/397/branches/transport-caching/PubSub-api/src/pubsub/SerializableStruct.java
+END
+ContentType.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/psi-impl/!svn/ver/543/branches/transport-caching/PubSub-api/src/pubsub/ContentType.java
+END
+PubSubID.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/psi-impl/!svn/ver/422/branches/transport-caching/PubSub-api/src/pubsub/PubSubID.java
+END
